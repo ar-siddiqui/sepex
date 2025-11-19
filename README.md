@@ -1,8 +1,8 @@
 # SEPEX - Service for Encapsulated Processes Execution
 
-[![Container CI](https://github.com/Dewberry/process-api/actions/workflows/container-ci.yml/badge.svg)](https://github.com/Dewberry/process-api/actions/workflows/container-ci.yml)
-[![E2E Tests](https://github.com/Dewberry/process-api/actions/workflows/e2e-tests.yml/badge.svg?event=push)](https://github.com/Dewberry/process-api/actions/workflows/e2e-tests.yml)
-[![Update Sequence Diagrams Wiki](https://github.com/Dewberry/process-api/actions/workflows/update-squence-wiki.yml/badge.svg)](https://github.com/Dewberry/process-api/actions/workflows/update-squence-wiki.yml)
+[![Container CI](https://github.com/Dewberry/sepex/actions/workflows/container-ci.yml/badge.svg)](https://github.com/Dewberry/sepex/actions/workflows/container-ci.yml)
+[![E2E Tests](https://github.com/Dewberry/sepex/actions/workflows/e2e-tests.yml/badge.svg?event=push)](https://github.com/Dewberry/sepex/actions/workflows/e2e-tests.yml)
+[![Update Sequence Diagrams Wiki](https://github.com/Dewberry/sepex/actions/workflows/update-squence-wiki.yml/badge.svg)](https://github.com/Dewberry/sepex/actions/workflows/update-squence-wiki.yml)
 
 An [OGC API - Processes](https://docs.ogc.org/is/18-062r2/18-062r2.html#toc0) compliant server for executing encapsulated (containerized, CLI, ...) processes locally or on a cloud at scale.
 
@@ -106,5 +106,4 @@ Similar to logs, metadata is not included in the OGC-API Processes specification
 An env file is required and should be available at the root of this repository (`./.env`). See the [example.env](example.env) for a guide.
 
 ## Notes
-1. This project is a fork of https://github.com/Dewberry/process-api
-2. API docs created using [swaggo](https://github.com/swaggo/swag)
+1. API docs created using [swaggo](https://github.com/swaggo/swag)
