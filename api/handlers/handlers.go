@@ -113,9 +113,26 @@ func (rh *RESTHandler) LandingPage(c echo.Context) error {
 		return err
 	}
 
-	output := map[string]string{
+	// Construct OGC API - Processes compliant response
+	output := map[string]interface{}{
 		"title":       rh.Title,
 		"description": rh.Description,
+		"version":     rh.GitTag,
+		"commit":      rh.GitCommit,
+		"links": []link{
+			{
+				Href:  fmt.Sprintf("https://github.com/Dewberry/sepex/releases/tag/%s", rh.GitTag),
+				Rel:   "version",
+				Type:  "text/html",
+				Title: fmt.Sprintf("Release %s", rh.GitTag),
+			},
+			{
+				Href:  fmt.Sprintf("https://github.com/Dewberry/sepex/commit/%s", rh.GitCommit),
+				Rel:   "vcs-commit",
+				Type:  "text/html",
+				Title: fmt.Sprintf("Commit %s", rh.GitCommit),
+			},
+		},
 	}
 	return prepareResponse(c, http.StatusOK, "landing", output)
 }

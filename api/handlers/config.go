@@ -48,6 +48,8 @@ type RESTHandler struct {
 	Name         string
 	Title        string
 	Description  string
+	GitTag       string
+	GitCommit    string
 	ConformsTo   []string
 	T            Template
 	StorageSvc   *s3.S3
@@ -69,7 +71,7 @@ func prettyPrint(v interface{}) string {
 
 // Initializes resources and return a new handler
 // errors are fatal
-func NewRESTHander() *RESTHandler {
+func NewRESTHander(gitTag, gitCommit string) *RESTHandler {
 	apiName, exist := os.LookupEnv("API_NAME")
 	if !exist {
 		log.Warn("env variable API_NAME not set")
@@ -80,6 +82,8 @@ func NewRESTHander() *RESTHandler {
 		Name:        apiName,
 		Title:       "sepex",
 		Description: "SEPEX - Service for Encapsulated Processes Execution. An OGC API - Processes compliant server for executing processes locally or on cloud at scale.",
+		GitTag:      gitTag,
+		GitCommit:   gitCommit,
 		ConformsTo: []string{
 			"http://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/schemas/",
 			"http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/ogc-process-description",
