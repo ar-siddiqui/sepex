@@ -87,10 +87,13 @@ jobs:
     permissions:
       contents: read
     outputs:
-      is_prerelease: ${{ steps.release_notes.outputs.is_prerelease }}
+      release_title: ${{ steps.release_notes.outputs.release_title }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
+
+      - name: Make script executable
+        run: chmod +x ./.github/workflows/scripts/generate-release-notes.sh
 
       - name: Generate release notes
         id: release_notes
@@ -118,7 +121,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: 'go.mod'
+          go-version-file: 'api/go.mod'
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
@@ -192,7 +195,6 @@ jobs:
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
-        if: always()
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -257,7 +259,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Release ${{ needs.validate-release.outputs.tag_name }}
+          name: ${{ needs.generate-release-notes.outputs.release_title }}
           body_path: release_notes.md
           draft: false
-          prerelease: ${{ needs.generate-release-notes.outputs.is_prerelease == 'true' }}
+          prerelease: ${{ needs.validate-release.outputs.is_prerelease == 'true' }}

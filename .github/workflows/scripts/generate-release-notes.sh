@@ -24,18 +24,6 @@ echo "Generating release notes for $TAG_NAME..."
 
 VERSION_NUM=${TAG_NAME#v}  # Remove 'v' prefix if present
 
-# Output to GitHub Actions
-if [ -n "$GITHUB_OUTPUT" ]; then
-  echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
-
-  # Check if prerelease
-  if [[ "$VERSION_NUM" =~ (alpha|beta|rc) ]]; then
-    echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
-  else
-    echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
-  fi
-fi
-
 # Extract changelog section (Keep a Changelog format)
 if [ -f "CHANGELOG.md" ]; then
   echo "## What's Changed" >> release_notes.md
@@ -43,7 +31,7 @@ if [ -f "CHANGELOG.md" ]; then
 
   # Look for version with ## [Version] format (Keep a Changelog standard)
   awk -v version="$VERSION_NUM" '
-    BEGIN { found=0; in_section=0 }
+    BEGIN { found=0; in_section=0; release_title="" }
 
     # Match version headers with ## [version] format
     /^## \[/ {
@@ -59,6 +47,12 @@ if [ -f "CHANGELOG.md" ]; then
         if (ver == version) {
           found=1
           in_section=1
+          # Extract the full line after ## [version]
+          # Example: ## [0.2.1] - 2025-12-03 -> v0.2.1 - 2025-12-03
+          # Example: ## [0.2.1] - 2025-12-03 - Title -> v0.2.1 - 2025-12-03 - Title
+          sub(/^## \[/, "", $0)
+          sub(/\]/, "", $0)
+          release_title = "v" $0
           next  # Skip the header itself
         }
       }
@@ -73,18 +67,16 @@ if [ -f "CHANGELOG.md" ]; then
       print
     }
 
-    # Output found status at the end
-    END { print "FOUND=" found }
+    # Output found status and title at the end
+    END {
+      print "FOUND=" found
+      print "RELEASE_TITLE=" release_title
+    }
   ' CHANGELOG.md > changelog_section.tmp
 
-  # Extract the FOUND status from the last line
-  FOUND_STATUS=$(tail -n 1 changelog_section.tmp | grep "^FOUND=" | cut -d= -f2)
-
-  # Remove the FOUND status line from the temp file
-  if grep -q "^FOUND=" changelog_section.tmp; then
-    sed -i.bak '$d' changelog_section.tmp
-    rm -f changelog_section.tmp.bak
-  fi
+  # Extract the FOUND status and RELEASE_TITLE from the last two lines
+  RELEASE_TITLE=$(tail -n 1 changelog_section.tmp | grep "^RELEASE_TITLE=" | cut -d= -f2-)
+  FOUND_STATUS=$(tail -n 2 changelog_section.tmp | head -n 1 | grep "^FOUND=" | cut -d= -f2)
 
   # Check if version was found in changelog
   if [ "$FOUND_STATUS" != "1" ]; then
@@ -93,6 +85,15 @@ if [ -f "CHANGELOG.md" ]; then
     rm -f changelog_section.tmp
     exit 1
   fi
+
+  # Output release title to GitHub Actions
+  if [ -n "$GITHUB_OUTPUT" ] && [ -n "$RELEASE_TITLE" ]; then
+    echo "release_title=$RELEASE_TITLE" >> "$GITHUB_OUTPUT"
+  fi
+
+  # Remove the last two lines (FOUND and RELEASE_TITLE status) from temp file
+  head -n -2 changelog_section.tmp > changelog_section_clean.tmp
+  mv changelog_section_clean.tmp changelog_section.tmp
 
   if [ -s changelog_section.tmp ]; then
     cat changelog_section.tmp >> release_notes.md
@@ -104,6 +105,10 @@ if [ -f "CHANGELOG.md" ]; then
   fi
   rm -f changelog_section.tmp
 fi
+
+echo "## Deploy" >> release_notes.md
+echo "" >> release_notes.md
+
 
 echo "### 🐳 Docker/Container" >> release_notes.md
 echo "" >> release_notes.md

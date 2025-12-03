@@ -9,7 +9,7 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## Unreleased
 
-## [v0.2.1] - 2025-12-03
+## [0.2.1] - 2025-12-03
 
 ### API
 - Version information is added in landing page.
