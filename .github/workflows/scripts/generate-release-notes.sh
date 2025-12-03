@@ -78,17 +78,6 @@ if [ -f "CHANGELOG.md" ]; then
   RELEASE_TITLE=$(tail -n 1 changelog_section.tmp | grep "^RELEASE_TITLE=" | cut -d= -f2-)
   FOUND_STATUS=$(tail -n 2 changelog_section.tmp | head -n 1 | grep "^FOUND=" | cut -d= -f2)
 
-  # Remove the FOUND and RELEASE_TITLE lines from the temp file
-  if grep -q "^FOUND=" changelog_section.tmp; then
-    sed -i.bak -e '$d' -e '$d' changelog_section.tmp
-    rm -f changelog_section.tmp.bak
-  fi
-
-  # Output release title to GitHub Actions
-  if [ -n "$GITHUB_OUTPUT" ] && [ -n "$RELEASE_TITLE" ]; then
-    echo "release_title=$RELEASE_TITLE" >> "$GITHUB_OUTPUT"
-  fi
-
   # Check if version was found in changelog
   if [ "$FOUND_STATUS" != "1" ]; then
     echo "Error: Version $VERSION_NUM not found in CHANGELOG.md"
@@ -96,6 +85,15 @@ if [ -f "CHANGELOG.md" ]; then
     rm -f changelog_section.tmp
     exit 1
   fi
+
+  # Output release title to GitHub Actions
+  if [ -n "$GITHUB_OUTPUT" ] && [ -n "$RELEASE_TITLE" ]; then
+    echo "release_title=$RELEASE_TITLE" >> "$GITHUB_OUTPUT"
+  fi
+
+  # Remove the last two lines (FOUND and RELEASE_TITLE status) from temp file
+  head -n -2 changelog_section.tmp > changelog_section_clean.tmp
+  mv changelog_section_clean.tmp changelog_section.tmp
 
   if [ -s changelog_section.tmp ]; then
     cat changelog_section.tmp >> release_notes.md
