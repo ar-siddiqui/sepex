@@ -9,6 +9,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Configuration
+- Repository URL is now configurable via `REPO_URL` environment variable. This URL is used for version/commit links and metadata context references.
+
 
 
 ## [0.2.0] - 2025-12-02

@@ -117,20 +117,12 @@ func (rh *RESTHandler) LandingPage(c echo.Context) error {
 	output := map[string]interface{}{
 		"title":       rh.Title,
 		"description": rh.Description,
-		"version":     rh.GitTag,
-		"commit":      rh.GitCommit,
 		"links": []link{
 			{
-				Href:  fmt.Sprintf("https://github.com/Dewberry/sepex/releases/tag/%s", rh.GitTag),
+				Href:  fmt.Sprintf("%s/releases/tag/%s", rh.RepoURL, rh.GitTag),
 				Rel:   "version",
 				Type:  "text/html",
-				Title: fmt.Sprintf("Release %s", rh.GitTag),
-			},
-			{
-				Href:  fmt.Sprintf("https://github.com/Dewberry/sepex/commit/%s", rh.GitCommit),
-				Rel:   "vcs-commit",
-				Type:  "text/html",
-				Title: fmt.Sprintf("Commit %s", rh.GitCommit),
+				Title: "Release Information",
 			},
 		},
 	}

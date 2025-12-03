@@ -14,9 +14,11 @@
     <p>{{ .description }}</p>
 
     <div class="footer-bar">
-        Version: <a href="https://github.com/Dewberry/sepex/releases/tag/{{ .version }}" target="_blank" rel="noopener noreferrer">{{ .version }}</a>
-        &nbsp;|&nbsp;
-        Commit: <a href="https://github.com/Dewberry/sepex/commit/{{ .commit }}" target="_blank" rel="noopener noreferrer">{{ .commit }}</a>
+        {{range .links}}
+        {{if eq .Rel "version"}}
+        Deployed Version: <a href="{{.Href}}" target="_blank" rel="noopener noreferrer">{{lastSegment .Href}}</a>
+        {{end}}
+        {{end}}
     </div>
 </body>
 
