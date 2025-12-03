@@ -157,6 +157,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: local-image:${{ needs.validate-release.outputs.version }}
+          build-args: |
+            GIT_TAG=${{ needs.validate-release.outputs.tag_name }}
 
       - name: Save Docker image
         run: docker save local-image:${{ needs.validate-release.outputs.version }} -o /tmp/container-image.tar
