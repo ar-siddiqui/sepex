@@ -87,7 +87,7 @@ jobs:
     permissions:
       contents: read
     outputs:
-      is_prerelease: ${{ steps.release_notes.outputs.is_prerelease }}
+      release_title: ${{ steps.release_notes.outputs.release_title }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -259,7 +259,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Release ${{ needs.validate-release.outputs.tag_name }}
+          name: ${{ needs.generate-release-notes.outputs.release_title }}
           body_path: release_notes.md
           draft: false
-          prerelease: ${{ needs.generate-release-notes.outputs.is_prerelease == 'true' }}
+          prerelease: ${{ needs.validate-release.outputs.is_prerelease == 'true' }}
