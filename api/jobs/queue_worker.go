@@ -96,7 +96,7 @@ func (qw *QueueWorker) tryStartJobs() {
 		}
 
 		// Job is leaving the queue and starting - update resource tracking.
-		// Resources move from "queued" to "used" (TryReserve already added to "used").
+		// Resources removed from "queued" (TryReserve already added to "used").
 		qw.resourcePool.RemoveQueued(res.CPUs, res.Memory)
 
 		log.Infof("Starting job %s", (*removed).JobID())
