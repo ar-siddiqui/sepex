@@ -259,21 +259,20 @@ func (j *DockerJob) IsSyncJob() bool {
 
 func (j *DockerJob) Run() {
 	// Single consolidated defer for all cleanup operations.
-	//
 	// Order of operations:
 	//   1. Recover from panic (if any) and mark job as FAILED
-	//   2. wgRun.Done() - unblock sync job waiters immediately
-	//   3. Release resources - free CPU/memory for next job in queue
-	//   4. go Close() - cleanup container, logs, remove from ActiveJobs in background
+	//   2. Release resources - free CPU/memory for next job in queue
+	//   3. Close() - cleanup process, logs, remove from ActiveJobs
 	//      (closeOnce guarantees this only executes once, even if Kill() also called Close())
+	//   4. wgRun.Done() - unblock sync job waiters after results are available
 	defer func() {
 		if r := recover(); r != nil {
 			j.logger.Errorf("Run() panicked: %v", r)
 			j.NewStatusUpdate(FAILED, time.Time{})
 		}
-		j.wgRun.Done()
 		j.ResourcePool.Release(j.Resources.CPUs, j.Resources.Memory)
-		go j.Close()
+		j.Close()
+		j.wgRun.Done()
 	}()
 
 	c, err := controllers.NewDockerController()
