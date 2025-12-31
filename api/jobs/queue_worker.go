@@ -87,7 +87,7 @@ func (qw *QueueWorker) tryStartJobs() {
 			return // Not enough resources, wait for release
 		}
 
-		// Remove the same job we peeked; it may have been dismissed concurrently.
+		// Remove the same job we peeked; it may have been dismissed concurrently, so can't use dequeue directly.
 		removed := qw.pendingJobs.Remove((*job).JobID())
 		if removed == nil {
 			// Job disappeared between peek and remove; release reservation and retry.

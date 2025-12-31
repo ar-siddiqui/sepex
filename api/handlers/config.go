@@ -87,7 +87,7 @@ func prettyPrint(v interface{}) string {
 
 // Initializes resources and return a new handler
 // errors are fatal
-func NewRESTHander(gitTag string) *RESTHandler {
+func NewRESTHander(gitTag string, maxLocalCPUs string, maxLocalMemory string) *RESTHandler {
 	apiName, exist := os.LookupEnv("API_NAME")
 	if !exist {
 		log.Warn("env variable API_NAME not set")
@@ -99,7 +99,7 @@ func NewRESTHander(gitTag string) *RESTHandler {
 	}
 
 	// Calculate resource limits once at startup
-	resourceLimits := newResourceLimits()
+	resourceLimits := newResourceLimits(maxLocalCPUs, maxLocalMemory)
 
 	// working with pointers here so as not to copy large templates, yamls, and ActiveJobs
 	config := RESTHandler{
@@ -263,28 +263,29 @@ func NewStorageService(providerType string) (*s3.S3, error) {
 	}
 }
 
-// newResourceLimits creates ResourceLimits from environment variables.
+// newResourceLimits creates ResourceLimits from the provided values.
+// Values come from CLI flags which already have env var fallback via resolveValue().
 // Falls back to 80% of system CPUs and 8GB memory if not specified.
-func newResourceLimits() *ResourceLimits {
+func newResourceLimits(maxLocalCPUsStr string, maxLocalMemoryStr string) *ResourceLimits {
 	numCPUs := float32(runtime.NumCPU())
 
 	// Default to 80% of system CPUs
 	maxCPUs := numCPUs * 0.8
-	if envVal := os.Getenv("MAX_QUEUE_CPUS"); envVal != "" {
-		if parsed, err := strconv.ParseFloat(envVal, 32); err == nil {
+	if maxLocalCPUsStr != "" {
+		if parsed, err := strconv.ParseFloat(maxLocalCPUsStr, 32); err == nil {
 			maxCPUs = float32(parsed)
 		} else {
-			log.Warnf("Invalid MAX_QUEUE_CPUS value: %s, using default %.2f", envVal, maxCPUs)
+			log.Warnf("Invalid MAX_LOCAL_CPUS value: %s, using default %.2f", maxLocalCPUsStr, maxCPUs)
 		}
 	}
 
 	// Default to 8GB
 	maxMemory := 8192
-	if envVal := os.Getenv("MAX_QUEUE_MEMORY_MB"); envVal != "" {
-		if parsed, err := strconv.Atoi(envVal); err == nil {
+	if maxLocalMemoryStr != "" {
+		if parsed, err := strconv.Atoi(maxLocalMemoryStr); err == nil {
 			maxMemory = parsed
 		} else {
-			log.Warnf("Invalid MAX_QUEUE_MEMORY_MB value: %s, using default %d", envVal, maxMemory)
+			log.Warnf("Invalid MAX_LOCAL_MEMORY_MB value: %s, using default %d", maxLocalMemoryStr, maxMemory)
 		}
 	}
 

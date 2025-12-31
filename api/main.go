@@ -39,6 +39,8 @@ var (
 	logFile        string
 	authSvc        string
 	authLvl        string
+	maxLocalCPUs   string
+	maxLocalMemory string
 )
 
 func init() {
@@ -66,6 +68,8 @@ func init() {
 	flag.StringVar(&logFile, "lf", resolveValue("LOG_FILE", "/.data/logs/api.jsonl"), "specify the log file")
 	flag.StringVar(&authSvc, "au", resolveValue("AUTH_SERVICE", ""), "specify the auth service")
 	flag.StringVar(&authLvl, "al", resolveValue("AUTH_LEVEL", "0"), "specify the authorization striction level")
+	flag.StringVar(&maxLocalCPUs, "mlc", resolveValue("MAX_LOCAL_CPUS", ""), "max CPUs for local jobs (default: 80% of system CPUs)")
+	flag.StringVar(&maxLocalMemory, "mlm", resolveValue("MAX_LOCAL_MEMORY_MB", ""), "max memory in MB for local jobs (default: 8192)")
 
 	flag.Parse()
 }
@@ -259,7 +263,7 @@ func main() {
 	initPlugins()
 
 	// Initialize resources
-	rh := handlers.NewRESTHander(GitTag)
+	rh := handlers.NewRESTHander(GitTag, maxLocalCPUs, maxLocalMemory)
 	// todo: handle this error: Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running
 	// todo: all non terminated job statuses should be updated to unknown
 	// todo: all logs in the logs directory should be moved to storage
