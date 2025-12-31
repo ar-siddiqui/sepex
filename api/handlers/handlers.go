@@ -173,7 +173,7 @@ func (rh *RESTHandler) Execution(c echo.Context) error {
 	}
 
 	if rh.Config.AuthLevel > 0 {
-		roles := strings.Split(c.Request().Header.Get("X-ProcessAPI-User-Roles"), ",")
+		roles := strings.Split(c.Request().Header.Get("X-SEPEX-User-Roles"), ",")
 
 		// admins are allowed to execute all processes, else you need to have a role with same name as processId
 		if !utils.StringInSlice(rh.Config.AdminRoleName, roles) && !utils.StringInSlice(processID, roles) {
@@ -225,7 +225,7 @@ func (rh *RESTHandler) Execution(c echo.Context) error {
 	// 	params.Inputs["resultsCallbackUri"] = fmt.Sprintf("%s/jobs/%s/results_update", os.Getenv("API_URL_PUBLIC"), jobID)
 	// }
 
-	submitter := c.Request().Header.Get("X-ProcessAPI-User-Email")
+	submitter := c.Request().Header.Get("X-SEPEX-User-Email")
 	var j jobs.Job
 	switch host {
 	case "docker":
@@ -286,7 +286,7 @@ func (rh *RESTHandler) Execution(c echo.Context) error {
 		if err.Error() == "resources unavailable" {
 			// Only sync jobs can fail with this error
 			return c.JSON(http.StatusServiceUnavailable, errResponse{
-				Message: "Server resources temporarily unavailable. Use async-execute mode (if available for this process) or retry later.",
+				Message: "Server resources are backlogged for local job execution. Use async-execute mode (if available for this process) or retry later.",
 			})
 		}
 		return c.JSON(http.StatusInternalServerError, errResponse{Message: fmt.Sprintf("submission error %s", err.Error())})
@@ -357,8 +357,8 @@ func (rh *RESTHandler) JobDismissHandler(c echo.Context) error {
 
 	// 2. Check auth
 	if rh.Config.AuthLevel > 0 {
-		roles := strings.Split(c.Request().Header.Get("X-ProcessAPI-User-Roles"), ",")
-		if (*j).SUBMITTER() != c.Request().Header.Get("X-ProcessAPI-User-Email") && !utils.StringInSlice(rh.Config.AdminRoleName, roles) {
+		roles := strings.Split(c.Request().Header.Get("X-SEPEX-User-Roles"), ",")
+		if (*j).SUBMITTER() != c.Request().Header.Get("X-SEPEX-User-Email") && !utils.StringInSlice(rh.Config.AdminRoleName, roles) {
 			return c.JSON(http.StatusForbidden, errResponse{Message: "Forbidden"})
 		}
 	}
@@ -629,10 +629,10 @@ func (rh *RESTHandler) ListJobsHandler(c echo.Context) error {
 	}
 
 	if rh.Config.AuthLevel > 1 { // changed for hotfix, should be > 0 when clients are updated
-		roles := strings.Split(c.Request().Header.Get("X-ProcessAPI-User-Roles"), ",")
+		roles := strings.Split(c.Request().Header.Get("X-SEPEX-User-Roles"), ",")
 
 		if !utils.StringInSlice(rh.Config.AdminRoleName, roles) {
-			submitters = c.Request().Header.Get("X-ProcessAPI-User-Email")
+			submitters = c.Request().Header.Get("X-SEPEX-User-Email")
 		}
 	}
 
@@ -689,7 +689,7 @@ func (rh *RESTHandler) ListJobsHandler(c echo.Context) error {
 // Time must be in RFC3339(ISO) format
 func (rh *RESTHandler) JobStatusUpdateHandler(c echo.Context) error {
 	if rh.Config.AuthLevel > 0 {
-		roles := strings.Split(c.Request().Header.Get("X-ProcessAPI-User-Roles"), ",")
+		roles := strings.Split(c.Request().Header.Get("X-SEPEX-User-Roles"), ",")
 
 		// only service accounts or admins can post status updates
 		if !utils.StringInSlice(rh.Config.ServiceRoleName, roles) && !utils.StringInSlice(rh.Config.AdminRoleName, roles) {

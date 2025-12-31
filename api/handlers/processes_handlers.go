@@ -113,7 +113,7 @@ func (rh *RESTHandler) ProcessDescribeHandler(c echo.Context) error {
 func (rh *RESTHandler) AddProcessHandler(c echo.Context) error {
 
 	if rh.Config.AuthLevel > 0 {
-		roles := strings.Split(c.Request().Header.Get("X-ProcessAPI-User-Roles"), ",")
+		roles := strings.Split(c.Request().Header.Get("X-SEPEX-User-Roles"), ",")
 
 		// non-admins are not allowed
 		if !utils.StringInSlice(rh.Config.AdminRoleName, roles) {
@@ -175,7 +175,7 @@ func (rh *RESTHandler) AddProcessHandler(c echo.Context) error {
 func (rh *RESTHandler) UpdateProcessHandler(c echo.Context) error {
 
 	if rh.Config.AuthLevel > 0 {
-		roles := strings.Split(c.Request().Header.Get("X-ProcessAPI-User-Roles"), ",")
+		roles := strings.Split(c.Request().Header.Get("X-SEPEX-User-Roles"), ",")
 
 		// non-admins are not allowed
 		if !utils.StringInSlice(rh.Config.AdminRoleName, roles) {
@@ -246,7 +246,7 @@ func (rh *RESTHandler) UpdateProcessHandler(c echo.Context) error {
 func (rh *RESTHandler) DeleteProcessHandler(c echo.Context) error {
 
 	if rh.Config.AuthLevel > 0 {
-		roles := strings.Split(c.Request().Header.Get("X-ProcessAPI-User-Roles"), ",")
+		roles := strings.Split(c.Request().Header.Get("X-SEPEX-User-Roles"), ",")
 
 		// non-admins are not allowed
 		if !utils.StringInSlice(rh.Config.AdminRoleName, roles) {

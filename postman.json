@@ -1053,7 +1053,7 @@
 				"type": "text/javascript",
 				"exec": [
 					"pm.request.headers.add({",
-					"    key: 'X-ProcessAPI-User-Email',",
+					"    key: 'X-SEPEX-User-Email',",
 					"    value: pm.variables.get('auth_username')",
 					"});"
 				]
